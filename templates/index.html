@@ -1,0 +1,357 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>S3 Bucket Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1, h2 { color: #333; }
+        form { margin-bottom: 20px; }
+        input[type="text"], input[type="file"], select { margin-right: 10px; }
+        button { padding: 5px 10px; }
+        ul { list-style-type: none; padding-left: 0; }
+        li { margin-bottom: 8px; }
+        a { margin-left: 10px; text-decoration: none; color: #007BFF; }
+        a:hover { text-decoration: underline; }
+        .section { margin-bottom: 40px; }
+    </style>
+</head>
+<body>
+    <h1>S3 Bucket Manager</h1>
+
+    <div class="section">
+        <h2>Create New Bucket</h2>
+        <form method="POST" action="{{ url_for('create_bucket') }}">
+            <input type="text" name="bucket_name" placeholder="Bucket name" required>
+            <button type="submit">Create</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Available Buckets</h2>
+        <ul>
+            {% for bucket in buckets %}
+                <li>
+                    <strong>{{ bucket['Name'] }}</strong>
+                    <a href="{{ url_for('view_bucket', bucket_name=bucket['Name']) }}">[Open]</a>
+                    <a href="{{ url_for('delete_bucket', bucket_name=bucket['Name']) }}">[Delete]</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if current_bucket %}
+    <div class="section">
+        <h2>Bucket: {{ current_bucket }}</h2>
+
+        <h3>Upload File</h3>
+        <form method="POST" action="{{ url_for('upload_file', bucket_name=current_bucket) }}" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <input type="text" name="folder" placeholder="Optional folder/">
+            <button type="submit">Upload</button>
+        </form>
+
+        <h3>Copy/Move File</h3>
+        <form method="POST" action="{{ url_for('copy_move', bucket_name=current_bucket) }}">
+            <input type="text" name="src_key" placeholder="Source key" required>
+            <input type="text" name="dest_key" placeholder="Destination key" required>
+            <select name="action">
+                <option value="copy">Copy</option>
+                <option value="move">Move</option>
+            </select>
+            <button type="submit">Go</button>
+        </form>
+
+        <h3>Files in {{ current_bucket }}</h3>
+        <ul>
+            {% for obj in objects %}
+                <li>
+                    {{ obj.Key }}
+                    <a href="{{ url_for('download_file', bucket_name=current_bucket, key=obj.Key) }}">[Download]</a>
+                    <a href="{{ url_for('delete_file', bucket_name=current_bucket, key=obj.Key) }}">[Delete]</a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <a href="{{ url_for('index') }}">← Back to Buckets</a>
+    </div>
+    {% endif %}
+</body>
+</html> -->
+
+
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>S3 Bucket Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1, h2, h3 { color: #333; }
+        form { margin-bottom: 20px; }
+        input[type="text"], input[type="file"], select { margin-right: 10px; }
+        button { padding: 5px 10px; }
+        ul { list-style-type: none; padding-left: 0; }
+        li { margin-bottom: 8px; }
+        a { margin-left: 10px; text-decoration: none; color: #007BFF; }
+        a:hover { text-decoration: underline; }
+        .section { margin-bottom: 40px; }
+    </style>
+</head>
+<body>
+    <h1>S3 Bucket Manager</h1>
+
+    <div class="section">
+        <h2>Create New Bucket</h2>
+        <form method="POST" action="{{ url_for('create_bucket') }}">
+            <input type="text" name="bucket_name" placeholder="Bucket name" required>
+            <button type="submit">Create</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Available Buckets</h2>
+        <ul>
+            {% for bucket in buckets %}
+                <li>
+                    <strong>{{ bucket.Name }}</strong>
+                    <a href="{{ url_for('view_bucket', bucket_name=bucket.Name) }}">[Open]</a>
+                    <a href="{{ url_for('delete_bucket', bucket_name=bucket.Name) }}">[Delete]</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if current_bucket %}
+    <div class="section">
+        <h2>Bucket: {{ current_bucket }}</h2>
+
+        <h3>Upload File</h3>
+        <form method="POST" action="{{ url_for('upload_file', bucket_name=current_bucket) }}" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <input type="text" name="folder" placeholder="Optional folder/">
+            <button type="submit">Upload</button>
+        </form>
+
+        <h3>Copy/Move File</h3>
+        Either endpoint name will now work; we use the new one -->
+        <!-- <form method="POST" action="{{ url_for('copy_move_file', bucket_name=current_bucket) }}">
+            <input type="text" name="src_key" placeholder="Source key (e.g. foo/bar.txt)" required>
+            <input type="text" name="dest_key" placeholder="Destination key (e.g. backup/bar.txt)" required>
+
+            <label for="dest_bucket">Destination Bucket:</label>
+            <select name="dest_bucket">
+                <option value="">-- Same Bucket --</option>
+                {% for b in all_buckets %}
+                    <option value="{{ b.Name }}">{{ b.Name }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="action">
+                <option value="copy">Copy</option>
+                <option value="move">Move</option>
+            </select>
+            <button type="submit">Go</button>
+        </form>
+
+        <h3>Files in {{ current_bucket }}</h3>
+        <ul>
+            {% for obj in objects %}
+                <li>
+                    {{ obj.Key }}
+                    <a href="{{ url_for('download_file', bucket_name=current_bucket, key=obj.Key) }}">[Download]</a>
+                    <a href="{{ url_for('delete_file', bucket_name=current_bucket, key=obj.Key) }}">[Delete]</a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <a href="{{ url_for('index') }}">← Back to Buckets</a>
+    </div>
+    {% endif %}
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>S3 Bucket Manager</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364); /* dark blue gradient */
+            color: #f0f0f0;
+        }
+
+        header {
+            background-color: #1b2838;
+            padding: 20px;
+            text-align: center;
+            color: #00ff99; /* neon green */
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: #15202b;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+        }
+
+        h2, h3 {
+            color: #00ffcc;
+            border-bottom: 2px solid #00ffcc;
+            padding-bottom: 5px;
+        }
+
+        form {
+            margin: 15px 0;
+        }
+
+        input[type="text"], input[type="file"], select {
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            margin-right: 10px;
+            background: #1c2b3a;
+            color: #fff;
+        }
+
+        button {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(90deg, #00b894, #0984e3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #1c2b3a;
+            margin: 8px 0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        a {
+            text-decoration: none;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        a:hover {
+            color: #00ff99;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #ffcc00;
+        }
+
+        .section {
+            margin-bottom: 35px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+         AWS S3 Bucket Manager
+    </header>
+
+    <div class="container">
+        <div class="section">
+            <h2>Create New Bucket</h2>
+            <form method="POST" action="{{ url_for('create_bucket') }}">
+                <input type="text" name="bucket_name" placeholder="Enter bucket name" required>
+                <button type="submit">+ Create Bucket</button>
+            </form>
+        </div>
+
+        <div class="section">
+            <h2>Available Buckets</h2>
+            <ul>
+                {% for bucket in buckets %}
+                    <li>
+                        <strong>{{ bucket.Name }}</strong>
+                        <span>
+                            <a href="{{ url_for('view_bucket', bucket_name=bucket.Name) }}">🔍 Open</a>
+                            <a href="{{ url_for('delete_bucket', bucket_name=bucket.Name) }}">🗑 Delete</a>
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% if current_bucket %}
+        <div class="section">
+            <h2>Bucket: {{ current_bucket }}</h2>
+
+            <h3>Upload File</h3>
+            <form method="POST" action="{{ url_for('upload_file', bucket_name=current_bucket) }}" enctype="multipart/form-data">
+                <input type="file" name="file" required>
+                <input type="text" name="folder" placeholder="Optional folder/">
+                <button type="submit">⬆ Upload</button>
+            </form>
+
+            <h3>Copy / Move File</h3>
+            <form method="POST" action="{{ url_for('copy_move_file', bucket_name=current_bucket) }}">
+                <input type="text" name="src_key" placeholder="Source key (e.g. foo/bar.txt)" required>
+                <input type="text" name="dest_key" placeholder="Destination key (e.g. backup/bar.txt)" required>
+
+                <label for="dest_bucket">Destination:</label>
+                <select name="dest_bucket">
+                    <option value="">-- Same Bucket --</option>
+                    {% for b in all_buckets %}
+                        <option value="{{ b.Name }}">{{ b.Name }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="action">
+                    <option value="copy">Copy</option>
+                    <option value="move">Move</option>
+                </select>
+                <button type="submit">⚡ Execute</button>
+            </form>
+
+            <h3>Files in {{ current_bucket }}</h3>
+            <ul>
+                {% for obj in objects %}
+                    <li>
+                        {{ obj.Key }}
+                        <span>
+                            <a href="{{ url_for('download_file', bucket_name=current_bucket, key=obj.Key) }}">⬇ Download</a>
+                            <a href="{{ url_for('delete_file', bucket_name=current_bucket, key=obj.Key) }}">🗑 Delete</a>
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <a href="{{ url_for('index') }}" class="back-link">⬅ Back to Buckets</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+
